@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -7,18 +7,38 @@ import { FIREBASE_AUTH } from './firebaseConfig';
 import Login from './app/screens/Login';
 import Home from './app/screens/Home';
 import Profile from './app/screens/Profile';
+import Register from './app/screens/Register';
 
-
-const Stack = createNativeStackNavigator();
+const OutsideStack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
 
 function InsideLayout() {
   return (
     <InsideStack.Navigator>
-      <InsideStack.Screen name="Home" component={Home} />
-      <InsideStack.Screen name="Profile" component={Profile} />
+      <InsideStack.Screen name="Home" component={Home} options={{ headerStyle: {backgroundColor: AppTheme.colors.background} }} />
+      <InsideStack.Screen name="Profile" component={Profile} options={{ headerStyle: {backgroundColor: AppTheme.colors.background} }} />
     </InsideStack.Navigator>
   )
+}
+
+function OutsideLayout() {
+  return (
+    <OutsideStack.Navigator>
+      <OutsideStack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+      <OutsideStack.Screen name='Register' component={Register} options={{ headerStyle: {backgroundColor: AppTheme.colors.background} }} />
+    </OutsideStack.Navigator>
+    
+  )
+}
+
+const AppTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "#252627",
+    text: "#fff"
+  },
 }
 
 export default function App() {
@@ -30,14 +50,13 @@ export default function App() {
     })
   })
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName='Login'>
+    <NavigationContainer theme={AppTheme}>
+      <Stack.Navigator initialRouteName='Login' >
         {user ? (
-          <Stack.Screen name='Inside' component={InsideLayout} options={{ headerShown: false }}/>
+          <Stack.Screen name='Inside' component={InsideLayout} options={{ headerShown: false }} />
         ): (
-          <Stack.Screen name='Login' component={Login} options={{ headerShown: false }}/>
+          <Stack.Screen name='Outside' component={OutsideLayout} options={{ headerShown: false }} />
         )}
-        
       </Stack.Navigator>
     </NavigationContainer>
   );
