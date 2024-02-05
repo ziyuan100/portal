@@ -1,20 +1,38 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import React from 'react'
-import { FIREBASE_AUTH } from '../../firebaseConfig';
+import React, { useEffect } from 'react'
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 
 const Home = ({ navigation }) => {
-  return (
-    <View>
-        <Pressable onPress={() => navigation.navigate("Profile")} style={styles.button}><Text>Profile</Text></Pressable>
-        <Pressable onPress={() => FIREBASE_AUTH.signOut()} style={styles.button}><Text>Logout</Text></Pressable>
-    </View>
-  )
+    // Success! Adding to firestore works!!!
+    const addTest = async () => {
+        try {
+            const docRef = await addDoc(collection(FIRESTORE_DB, "users"), {
+              first: "Alan",
+              middle: "Mathison",
+              last: "Turing",
+              born: 1912
+            });
+          
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+
+    return (
+        <View>
+            <Pressable onPress={addTest} style={innerStyles.button}><Text>Test</Text></Pressable>
+            <Pressable onPress={() => navigation.navigate("Profile")} style={innerStyles.button}><Text>Profile</Text></Pressable>
+            <Pressable onPress={() => FIREBASE_AUTH.signOut()} style={innerStyles.button}><Text>Logout</Text></Pressable>
+        </View>
+    )
 }
 
 export default Home
 
 
-const styles = StyleSheet.create({
+const innerStyles = StyleSheet.create({
     container: {
         marginHorizontal: 20,
         flex: 1,
