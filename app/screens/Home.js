@@ -7,7 +7,7 @@ const Home = ({ navigation }) => {
     // Success! Adding to firestore works!!!
     const addTest = async () => {
         try {
-            const docRef = await addDoc(collection(FIRESTORE_DB, "users"), {
+            const docRef = await addDoc(collection(FIRESTORE_DB, "testing"), {
               first: "Alan",
               middle: "Mathison",
               last: "Turing",
