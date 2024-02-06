@@ -3,7 +3,7 @@ import { useState } from 'react';
 import React from 'react'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { setDoc, getDocs, doc } from 'firebase/firestore';
 
 const Register = ({ route }) => {
     const { styles } = route.params;
@@ -16,10 +16,13 @@ const Register = ({ route }) => {
         setLoading(true);
         try {
             const res = await createUserWithEmailAndPassword(auth, email, password);
-            // console.log(res);
             const user = res.user;
             console.log(user);
-            const doc = await addDoc(collection(FIRESTORE_DB, "users"), user);
+            const document = await setDoc(doc(FIRESTORE_DB, "users", user.uid), {
+                displayName: user.displayName,
+                email: user.email,
+                preferences: null
+            });
         } catch (err) {
             console.log(err);
             alert("Sign Up Failed: " + err.message);

@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './firebaseConfig';
+import { StatusBar } from 'expo-status-bar';
 
 import Login from './app/screens/Login';
 import Home from './app/screens/Home';
@@ -16,7 +17,7 @@ const Stack = createNativeStackNavigator();
 function InsideLayout() {
   return (
     <InsideStack.Navigator>
-      <InsideStack.Screen name="Home" component={Home} options={{ headerStyle: {backgroundColor: AppTheme.colors.background} }} />
+      <InsideStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
       <InsideStack.Screen name="Profile" component={Profile} options={{ headerStyle: {backgroundColor: AppTheme.colors.background} }} />
     </InsideStack.Navigator>
   )
@@ -45,12 +46,13 @@ export default function App() {
   const [user, setUser] = useState(null);
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, user => {
-      console.log("user", user);
+      // console.log("user", user);
       setUser(user);
     })
   })
   return (
     <NavigationContainer theme={AppTheme}>
+      <StatusBar hidden />
       <Stack.Navigator initialRouteName='Login' >
         {user ? (
           <Stack.Screen name='Inside' component={InsideLayout} options={{ headerShown: false }} />
