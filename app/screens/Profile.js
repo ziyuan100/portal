@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import innerStyles from '../styles/InnerStyles';
-import { getAuth } from 'firebase/auth';
+import { getAuth, updateProfile } from 'firebase/auth';
 
 const Profile = () => {
   const  [profileData, setProfileData] = useState({displayName: "", preferences: []})
@@ -30,7 +30,17 @@ const Profile = () => {
   }, [])
 
   const saveProfile = async() => {
-    await updateDoc(doc(FIRESTORE_DB, "users", uid), profileData);
+    try {
+      await updateDoc(doc(FIRESTORE_DB, "users", uid), profileData);
+      const auth = getAuth();
+      const user = auth.currentUser;
+      updateProfile(user, {
+        displayName: profileData.displayName
+      });
+      console.log("success");
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (

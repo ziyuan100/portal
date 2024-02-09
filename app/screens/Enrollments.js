@@ -1,40 +1,43 @@
 import { View, Text, Button, FlatList, RefreshControl } from "react-native"
 import Modal from "react-native-modal";
 import innerStyles from "../styles/InnerStyles";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, query, where } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 import { FIRESTORE_DB } from "../../firebaseConfig";
 import Listing from "../components/Listing";
 import Activity from "../components/Activity";
 import { getAuth } from "firebase/auth";
 
-const Explore = () => {
+const Enrollments = () => {
     const [activities, setActivities] = useState([]);
     const [modalVisibility, setModalVisibility] = useState(false);
     const [focusActivity, setFocusActivity] = useState({});
     const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
-        getActivities();
+        getEnrollments();
     }, []);
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        await getActivities();
+        await getEnrollments();
         setRefreshing(false);
     })
 
-    const getActivities = async () => {
-        
+    const getEnrollments = async () => {
+        console.log("enrollments reload test");
         try {
-            // const user = getAuth().currentUser.uid;
-            const q = query(collection(FIRESTORE_DB, "activities"), where("completed", "==", false));
-            const querySnapshot = await getDocs(q);
-            const acts = [];
-            querySnapshot.forEach(doc => {
-                acts.push({...doc.data(), id: doc.id});
-            })
-            console.log("explore reload test", acts);
+            const user = getAuth().currentUser.uid;
+            const userRef = doc(FIRESTORE_DB, "users", user);
+            const docSnap = await getDoc(userRef);
+            const applications = docSnap.data().enrollments;
+            // where in requires a non-empty array... frustrating
+            // const q = query(collection(FIRESTORE_DB, "activities"), where("id", "in", applications));
+            // const querySnapshot = await getDocs(q);
+
+            const activityRefs = applications.map(id => doc(FIRESTORE_DB, "activities", id));
+            let acts = await Promise.all(activityRefs.map(ref => getDoc(ref)));
+            acts = acts.map(doc => doc.data());
             setActivities(acts);
         } catch (e) {
             console.error(e);
@@ -72,11 +75,11 @@ const Explore = () => {
                 swipeDirection="down"
                 style={{margin: 0}}
             >
-                <Activity activity={focusActivity} reload={getActivities}/>
+                <Activity activity={focusActivity} reload={() => getEnrollments()}/>
             </Modal>
         </View>
         
     )
 }
 
-export default Explore;
+export default Enrollments;

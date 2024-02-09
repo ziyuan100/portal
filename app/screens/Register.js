@@ -7,6 +7,7 @@ import { setDoc, getDocs, doc } from 'firebase/firestore';
 
 const Register = ({ route }) => {
     const { styles } = route.params;
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -16,7 +17,10 @@ const Register = ({ route }) => {
         setLoading(true);
         try {
             const res = await createUserWithEmailAndPassword(auth, email, password);
-            const user = res.user;
+            const userPast = res.user;
+            const user = await userPast.updateProfile({
+                displayName: name
+            })
             console.log(user);
             const document = await setDoc(doc(FIRESTORE_DB, "users", user.uid), {
                 displayName: user.displayName,
@@ -34,6 +38,7 @@ const Register = ({ route }) => {
     return (
         <View style={styles.container}>
             <View style={{ marginBottom: "auto", marginTop: 200 }}>
+            <TextInput value={name} style={{...styles.input, marginBottom: 20}} placeholder='Name' placeholderTextColor="#fff" autoCapitalize='none' onChangeText={text => setName(text)}></TextInput>
                 <TextInput value={email} style={{...styles.input, marginBottom: 20}} placeholder='Email' placeholderTextColor="#fff" autoCapitalize='none' onChangeText={text => setEmail(text)}></TextInput>
                 <TextInput secureTextEntry={true} value={password} style={styles.input} placeholder='Password' placeholderTextColor="#fff" autoCapitalize='none' onChangeText={text => setPassword(text)}></TextInput>
             </View>  
