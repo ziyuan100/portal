@@ -4,8 +4,8 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import Explore from './Explore';
-import Application from "./Applications";
-import Enrollment from './Enrollments';
+import Applications from "./Applications";
+import Enrollments from './Enrollments';
 import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 // import { Header } from 'react-native/Libraries/NewAppScreen';
 import innerStyles from '../styles/InnerStyles';
@@ -22,9 +22,9 @@ const renderScene = ({route}) => {
         case "first":
             return <Explore />;
         case "second":
-            return <Application />;
+            return <Applications />;
         case "third":
-            return <Enrollment />;
+            return <Enrollments />;
     }
 }
 
@@ -43,7 +43,7 @@ const Home = ({ navigation }) => {
         if (user !== null) {
             setUsername(user.displayName);
         }
-    }, [])
+    })
 
     const renderLabel = ({route}) => (
         <Text style={{fontSize: 12, color: "lightgrey"}}>{route.title}</Text>

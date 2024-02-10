@@ -34,7 +34,7 @@ const Explore = () => {
             querySnapshot.forEach(doc => {
                 acts.push({...doc.data(), id: doc.id});
             })
-            console.log("explore reload test", acts);
+            // console.log("explore reload test", acts);
             setActivities(acts);
         } catch (e) {
             console.error(e);

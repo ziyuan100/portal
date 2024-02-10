@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TextInput } from 'react-native'
+import { View, Text, Pressable, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -9,14 +9,15 @@ const Profile = () => {
   const  [profileData, setProfileData] = useState({displayName: "", preferences: []})
 
   const auth = getAuth();
-  const uid = auth.currentUser.uid; 
+  const user = auth.currentUser;
+  const uid = user.uid; 
 
   const getUser = async () => {
     try {
       const res = await getDoc(doc(FIRESTORE_DB, "users", uid));
       if (res.exists()) {
         const data = res.data();
-        console.log(data);
+        // console.log(data);
         setProfileData({displayName: data.displayName, preferences: [...data.preferences]});
       }
     } catch (e) {
@@ -26,29 +27,21 @@ const Profile = () => {
 
   useEffect(() => {
     getUser();
-    // setProfileData({displayName: data.displayName, preferences: [...data.preferences]});
   }, [])
 
-  const saveProfile = async() => {
-    try {
-      await updateDoc(doc(FIRESTORE_DB, "users", uid), profileData);
-      const auth = getAuth();
-      const user = auth.currentUser;
-      updateProfile(user, {
-        displayName: profileData.displayName
-      });
-      console.log("success");
-    } catch (e) {
-      console.error(e);
-    }
-  }
 
   return (
-    <View>
-      <Text style={{color: "#fff"}}>Display Name</Text>
-      <TextInput style={{color: "#fff"}} value={profileData.displayName} onChangeText={name => setProfileData(prevProfileData => ({...prevProfileData, displayName: name}))} />
-      <Pressable onPress={saveProfile} style={innerStyles.button}><Text>Save Profile</Text></Pressable>
-      <Pressable onPress={() => FIREBASE_AUTH.signOut()} style={innerStyles.button}><Text>Logout</Text></Pressable>
+    <View style={{flex: 1 }}>
+      <View style={{alignItems: "center"}}>
+        <Image source={require("../../assets/user.png")} style={{width: 100, height: 100, margin: 20}}/>
+        <View>
+          <Text style={{color: "#fff", fontWeight: "bold", fontSize: 20, margin: 20}}>Name: {user.displayName}</Text>
+          <Text style={{color: "#fff", fontWeight: "bold", fontSize: 20, margin: 20}}>Email: {user.email}</Text>
+        </View>
+      </View>
+      <Pressable onPress={() => FIREBASE_AUTH.signOut()} style={{...innerStyles.button, marginTop: "auto", backgroundColor: "red"}}>
+        <Text style={{fontWeight: "bold", color: "#fff"}}>Logout</Text>
+      </Pressable>
     </View>
   )
 }

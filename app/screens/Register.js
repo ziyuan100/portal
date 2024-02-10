@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TextInput, ActivityIndicator, Pressable } from 
 import { useState } from 'react';
 import React from 'react'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { setDoc, getDocs, doc } from 'firebase/firestore';
 
 const Register = ({ route }) => {
@@ -16,16 +16,17 @@ const Register = ({ route }) => {
     const signUp = async () => {
         setLoading(true);
         try {
-            const res = await createUserWithEmailAndPassword(auth, email, password);
-            const userPast = res.user;
-            const user = await userPast.updateProfile({
+            const { user } = await createUserWithEmailAndPassword(auth, email, password);
+            const res = await updateProfile(user, {
                 displayName: name
             })
-            console.log(user);
+            // console.log(res);
             const document = await setDoc(doc(FIRESTORE_DB, "users", user.uid), {
                 displayName: user.displayName,
                 email: user.email,
-                preferences: null
+                preferences: [],
+                enrollments: [],
+                applications: []
             });
         } catch (err) {
             console.log(err);
@@ -37,8 +38,8 @@ const Register = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <View style={{ marginBottom: "auto", marginTop: 200 }}>
-            <TextInput value={name} style={{...styles.input, marginBottom: 20}} placeholder='Name' placeholderTextColor="#fff" autoCapitalize='none' onChangeText={text => setName(text)}></TextInput>
+            <View style={{ marginBottom: "auto", marginTop: 100 }}>
+                <TextInput value={name} style={{...styles.input, marginBottom: 20}} placeholder='Name' placeholderTextColor="#fff" autoCapitalize='none' onChangeText={text => setName(text)}></TextInput>
                 <TextInput value={email} style={{...styles.input, marginBottom: 20}} placeholder='Email' placeholderTextColor="#fff" autoCapitalize='none' onChangeText={text => setEmail(text)}></TextInput>
                 <TextInput secureTextEntry={true} value={password} style={styles.input} placeholder='Password' placeholderTextColor="#fff" autoCapitalize='none' onChangeText={text => setPassword(text)}></TextInput>
             </View>  

@@ -7,11 +7,12 @@ import { FIRESTORE_DB } from "../../firebaseConfig";
 import Listing from "../components/Listing";
 import Activity from "../components/Activity";
 import { getAuth } from "firebase/auth";
+import Timeline from "react-native-timeline-flatlist";
 
 const Enrollments = () => {
-    const [activities, setActivities] = useState([]);
-    const [modalVisibility, setModalVisibility] = useState(false);
-    const [focusActivity, setFocusActivity] = useState({});
+    const [enrollments, setEnrollments] = useState([]);
+    // const [modalVisibility, setModalVisibility] = useState(false);
+    // const [focusActivity, setFocusActivity] = useState({});
     const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
@@ -25,60 +26,58 @@ const Enrollments = () => {
     })
 
     const getEnrollments = async () => {
-        console.log("enrollments reload test");
+        // console.log("enrollments reload test");
         try {
             const user = getAuth().currentUser.uid;
             const userRef = doc(FIRESTORE_DB, "users", user);
             const docSnap = await getDoc(userRef);
-            const applications = docSnap.data().enrollments;
-            // where in requires a non-empty array... frustrating
-            // const q = query(collection(FIRESTORE_DB, "activities"), where("id", "in", applications));
-            // const querySnapshot = await getDocs(q);
-
-            const activityRefs = applications.map(id => doc(FIRESTORE_DB, "activities", id));
-            let acts = await Promise.all(activityRefs.map(ref => getDoc(ref)));
+            const enrollments = docSnap.data().enrollments;
+            const enrollmentRefs = enrollments.map(id => doc(FIRESTORE_DB, "activities", id));
+            // scuffed formatting... too bad
+            let acts = await Promise.all(enrollmentRefs.map(ref => getDoc(ref)));
             acts = acts.map(doc => doc.data());
-            setActivities(acts);
+            acts = acts.map(obj => ({time: obj.date[0].toDate().toDateString().split(' ').slice(1).join(' '), title: obj.name, description: obj.location}))
+            setEnrollments(acts);
         } catch (e) {
             console.error(e);
         }
         
     }
 
-    const focus = (activity) => {
-        toggleModalVisibility();
-        setFocusActivity(activity);
-    }
+    // const focus = (activity) => {
+    //     toggleModalVisibility();
+    //     setFocusActivity(activity);
+    // }
 
-    const toggleModalVisibility = () => {
-        setModalVisibility(!modalVisibility);
-    }
+    // const toggleModalVisibility = () => {
+    //     setModalVisibility(!modalVisibility);
+    // }
 
-    const renderItem = ({ item, index }) => (
-        <Listing activity={item} key={index} focus={() => focus(item)}/>
-    )
+    // const renderItem = ({ item, index }) => (
+    //     <Listing activity={item} key={index} focus={() => focus(item)}/>
+    // )
 
     return (
         
         <View>
-            <FlatList 
-                data={activities} 
-                renderItem={renderItem} 
-                refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
-                style={{minHeight: 200}}
+            <Timeline
+                data={enrollments}
+                circleColor="#fff"
+                circleSize={20}
+                lineColor="#fff"
+                timeContainerStyle={{minWidth:60,}}
+                timeStyle={{textAlign: 'center', backgroundColor:'#fff', color:'black', padding:5, borderRadius:10}}
+                titleStyle={{color:"#fff"}}
+                descriptionStyle={{color:'#fff'}}
+                options={{
+                    refreshControl: (<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />)
+                }}
+                isUsingFlatlist={true}
+                style={{minHeight: 400, padding: 20}}
+                showTime={true}
+                eventContainerStyle={{paddingBottom: 20}}
             />
-            <Modal 
-                isVisible={modalVisibility} 
-                coverScreen={true} 
-                onBackButtonPress={toggleModalVisibility} 
-                onSwipeComplete={toggleModalVisibility} 
-                swipeDirection="down"
-                style={{margin: 0}}
-            >
-                <Activity activity={focusActivity} reload={() => getEnrollments()}/>
-            </Modal>
         </View>
-        
     )
 }
 

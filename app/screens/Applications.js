@@ -25,7 +25,7 @@ const Applications = () => {
     })
 
     const getApplications = async () => {
-        console.log("applications reload test");
+        // console.log("applications reload test");
         try {
             const user = getAuth().currentUser.uid;
             const userRef = doc(FIRESTORE_DB, "users", user);
