@@ -1,6 +1,10 @@
 # Coalesce
 A community service aggregator that allows for you to sign up for ad hoc community service activities with minimal fuss
 
+Demo Account:
+email: demo@demo.com
+password: 123456
+
 ## Features
 ### Authentication
 Users must create an account with their emails, in order to access the features of the app.
@@ -14,3 +18,4 @@ Users can apply for any interested activities in one touch. Applications are aut
 
 ### Enrollments
 Users can see their current approved applications (aka. enrollments), in a simple intuitive timeline
+
